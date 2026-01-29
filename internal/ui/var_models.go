@@ -149,9 +149,12 @@ func (m varSelectModel) View() string {
 
 // renderHeader renders the header section
 func (m varSelectModel) renderHeader() string {
+	width := maxInt(m.width, 80)
 	var b strings.Builder
 	b.WriteString(m.header)
-	b.WriteString("\n\n")
+	b.WriteString("\n")
+	b.WriteString(styles.Divider.Render(strings.Repeat("─", width)))
+	b.WriteString("\n")
 
 	if m.customHeader != "" {
 		b.WriteString(styles.Cursor.Render(m.customHeader))
@@ -293,9 +296,12 @@ func (m varInputModel) View() string {
 
 // renderHeader renders the header section
 func (m varInputModel) renderHeader() string {
+	width := maxInt(m.width, 80)
 	var b strings.Builder
 	b.WriteString(m.header)
-	b.WriteString("\n\n")
+	b.WriteString("\n")
+	b.WriteString(styles.Divider.Render(strings.Repeat("─", width)))
+	b.WriteString("\n")
 
 	if m.customHeader != "" {
 		b.WriteString(styles.Cursor.Render(m.customHeader))

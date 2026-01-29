@@ -159,31 +159,36 @@ func buildScope(vars []varState) map[string]string {
 }
 
 // buildProgressHeader creates a header showing command progress
+// Uses the global styles which are refreshed by getTTY before this is called
+// Note: Does not include dividers - the TUI adds those with proper terminal width
 func buildProgressHeader(cmd string, vars []varState, currentIdx int) string {
 	var sb strings.Builder
 
 	progressCmd := cmd
 	for i, vs := range vars {
 		if vs.resolved {
-			progressCmd = replaceVar(progressCmd, vs.def.Name, fmt.Sprintf("\033[1;33m%s\033[0m", vs.value))
+			progressCmd = replaceVar(progressCmd, vs.def.Name, styles.Header.Render(vs.value))
 		} else if i == currentIdx {
-			progressCmd = replaceVar(progressCmd, vs.def.Name, fmt.Sprintf("\033[1;35m$%s\033[0m", vs.def.Name))
+			progressCmd = replaceVar(progressCmd, vs.def.Name, styles.Cursor.Render("$"+vs.def.Name))
 		}
 	}
 
-	sb.WriteString(fmt.Sprintf("%s\n", progressCmd))
-	sb.WriteString("\033[90m─────────────────────────────────────────\033[0m\n")
+	sb.WriteString(progressCmd)
 
 	for i, vs := range vars {
+		sb.WriteString("\n")
 		if vs.resolved {
-			sb.WriteString(fmt.Sprintf("\033[32m✓\033[0m \033[90m$%s\033[0m = \033[33m%s\033[0m\n", vs.def.Name, vs.value))
+			sb.WriteString(styles.Command.Render("✓"))
+			sb.WriteString(" ")
+			sb.WriteString(styles.Dim.Render("$" + vs.def.Name))
+			sb.WriteString(" = ")
+			sb.WriteString(styles.Header.Render(vs.value))
 		} else if i == currentIdx {
-			sb.WriteString(fmt.Sprintf("\033[1;35m▶ $%s\033[0m\n", vs.def.Name))
+			sb.WriteString(styles.Cursor.Render("▶ $" + vs.def.Name))
 		} else {
-			sb.WriteString(fmt.Sprintf("\033[90m○ $%s\033[0m\n", vs.def.Name))
+			sb.WriteString(styles.Dim.Render("○ $" + vs.def.Name))
 		}
 	}
-	sb.WriteString("\033[90m─────────────────────────────────────────\033[0m")
 
 	return sb.String()
 }
